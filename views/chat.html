@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="\stylesheets\chat.css">
+
+    <!-- 해당 채팅 디자인은 모바일에서 사용 불가 -->
+    <!-- 모바일의 경우 아예 Depth가 달라져야 한다. -->
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+
+        <audio id="myAudio">
+            <source src="\resource\alarm.mp3" type="audio/mpeg">
+        </audio>
+
+        <div class="messaging">
+            <div class="inbox_msg">
+                <!-- 좌측 채팅 리스트 -->
+                <div class="inbox_people">
+                    <div class="headind_srch">
+                        <div class="recent_heading">
+                            <h4>Yurim</h4>
+                        </div>
+                        <div class="srch_bar">
+                            <div class="stylish-input-group">
+                                <input type="text" class="search-bar"  placeholder="Search" >
+                                <span class="input-group-addon">
+                                    <button type="button"> 
+                                        <i class="fa fa-search" aria-hidden="true"></i> 
+                                    </button>
+                                </span> 
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 실제 채팅 리스트 -->
+                    <div id="inbox_chat" class="inbox_chat">
+                        <!-- <div class="chat_list active_chat">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="chat_list">
+                            <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
+                                <p>Test, which is a new approach to have all solutions 
+                                astrology under one roof.</p>
+                            </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <!-- 우측 채팅 -->
+                <div class="mesgs">
+                    <!-- 해당 채팅방의 메시지 리스트 -->
+                        <div id="msg_history" class="msg_history">
+                            <!-- <div class="incoming_msg">
+                            <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="received_msg">
+                            <div class="received_withd_msg">
+                                <p>Test which is a new approach to have all
+                                solutions</p>
+                                <span class="time_date"> 11:01 AM    |    June 9</span></div>
+                            </div>
+                            </div>
+                            <div class="outgoing_msg">
+                                <div class="sent_msg">
+                                <p>Test which is a new approach to have all
+                                    solutions</p>
+                                <span class="time_date"> 11:01 AM    |    June 9</span> </div>
+                            </div>
+                            <div class="incoming_msg">
+                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                                <div class="received_msg">
+                                <div class="received_withd_msg">
+                                    <p>Test, which is a new approach to have</p>
+                                    <span class="time_date"> 11:01 AM    |    Yesterday</span></div>
+                                </div>
+                            </div>
+                            <div class="outgoing_msg">
+                                <div class="sent_msg">
+                                <p>Apollo University, Delhi, India Test</p>
+                                <span class="time_date"> 11:01 AM    |    Today</span> </div>
+                            </div>
+                            <div class="incoming_msg">
+                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                                <div class="received_msg">
+                                <div class="received_withd_msg">
+                                    <p>We work directly with our designers and suppliers,
+                                    and sell direct to you, which means quality, exclusive
+                                    products, at a price anyone can afford.</p>
+                                    <span class="time_date"> 11:01 AM    |    Today</span></div>
+                                </div>
+                            </div> -->
+                        </div>
+                    <!-- 메시지 입력부 -->
+                    <div class="type_msg">
+                        <form id="sendForm" onsubmit="return SendMessage()">
+                            <div class="input_msg_write">
+                                <textarea id="write_msg" class="write_msg" placeholder="Type a message" ></textarea>
+                                <!-- text area 로 하고 enter 클릭 시 전송되게 하는방법 확인 해 볼 것-->
+                                
+                                <!-- <input type="text" id="write_msg" class="write_msg" placeholder="Type a message" /> -->
+                                <button class="msg_send_btn" type="button" onclick="SendMessage()"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- <p class="text-center top_spac"> Design by <a target="_blank" href="#">Sunil Rajput</a></p> -->
+        </div>
+    </body>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/javascripts/utils.js"></script>
+
+    <script>
+        // fileDropDown();
+
+        // function dropHandler(ev) {
+        //     console.log('File(s) dropped');
+
+        //     // Prevent default behavior (Prevent file from being opened)
+        //     ev.preventDefault();
+
+        //     // if (ev.dataTransfer.items) {
+        //     //     console.log('items true');
+        //     //     // 폴더, 파일 업로드 시 무조건 해당 부분에 진입
+
+        //     //     // Use DataTransferItemList interface to access the file(s)
+        //     //     for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+        //     //     // If dropped items aren't files, reject them
+        //     //         if (ev.dataTransfer.items[i].kind == 'file') {
+        //     //             var file = ev.dataTransfer.items[i].getAsFile();
+        //     //             console.log('... file[' + i + '].name = ' + file.name);
+        //     //         }
+        //     //     }
+        //     // } else {
+        //     //     console.log('items false');
+        //     //     // Use DataTransfer interface to access the file(s)
+        //     //     for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+        //     //         console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+        //     //     }
+        //     // }
+        // }
+
+    </script>
+</html>

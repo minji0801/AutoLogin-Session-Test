@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="utf-8">
+        <title>CKEditor</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div id="editor">This is some sample content.</div>
+    <button type="button" onclick="saveFile()">세이브</button>
+    <button type="button" onclick="getFile()">저장 된 데이터 불러오기</button>
+
+  </div>
+
+
+</body>
+<!-- 클래식 방식-->
+<script src="https://cdn.ckeditor.com/ckeditor5/23.1.0/classic/ckeditor.js"></script>
+<!-- 인라인 방식-->
+<!-- <script src="https://cdn.ckeditor.com/ckeditor5/23.1.0/inline/ckeditor.js"></script> -->
+<!-- 풍선방식 -->
+<!-- <script src="https://cdn.ckeditor.com/ckeditor5/23.1.0/balloon/ckeditor.js"></script> -->
+<script>
+
+    let oldFile = '    <p>니투데이 김지영 기자]</p><figure class="image"><img src="https://imgnews.pstatic.net/image/008/2020/11/03/0004493836_001_20201103084244381.jpg?type=w647" alt=""></figure><p><i>김종인 국민의힘 비상대책위원장(왼쪽)이 2일 오후 서울 종로구의 한 한식당에서 내년 서울시장 보궐선거 전략 관련 의견 수렴차 서울지역 당 중진 정치인들과 만찬 회동을 하기 위해 들어서고 있다. 사진 윗줄 왼쪽부터 시계방향으로 김 위원장, 나경원·김성태·이혜훈 전 의원, 박진·권영세 국민의힘 의원, 오세훈 전 서울시장. /사진=뉴스1</i></p><p>김종인 국민의힘 비상대책위원장은 지난 2일 서울 지역 중진 정치인들과 저녁식사를 하며 내년 서울시장 보궐선거 필승 의지를 다졌다.</p><p>김 위원장과 주호영 원내대표는 이날 오후 6시30분쯤부터 서울 종로구의 한 한식당에서 서울 지역 전·현직 중진 의원들과 만났다. 이 자리에는 4선의 권영세·박진 의원, 정양석 사무총장, 송언석 의원, 오세훈 전 서울시장, 김성태·김용태·나경원·이혜훈 전 의원이 참석했다.</p>';
+
+    let myEditor;
+    ClassicEditor
+            .create( document.querySelector( '#editor' ) )
+            .then( editor => {
+                    console.log( editor );
+                    myEditor = editor
+            } )
+            .catch( error => {
+                    console.error( error );
+            } );
+    
+
+
+    function getFile(){
+        // console.log('myEditor',myEditor.getData());
+        // console.log('editor',editor);
+        myEditor.setData(oldFile);
+        // editor = oldFile
+        // myEditor = oldFile;
+    }
+
+    function saveFile(){
+        console.log('편집기 html 태그',myEditor.getData());
+    }
+    
+
+    // InlineEditor
+    //         .create( document.querySelector( '#editor' ) )
+    //         .then( editor => {
+    //             console.log( editor );
+    //         } )
+    //         .catch( error => {
+    //             console.error( error );
+    //         } );
+    // BalloonEditor
+    //         .create( document.querySelector( '#editor' ) )
+    //         .then( editor => {
+    //             console.log( editor );
+    //         } )
+    //         .catch( error => {
+    //             console.error( error );
+    //         } );
+</script>
+</html>

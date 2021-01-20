@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- DevExtreme themes -->
+        <link rel="stylesheet" href="\stylesheets\dx.common.css">
+        <link rel="stylesheet" href="\stylesheets\dx.light.css">
+        <!-- <link rel="stylesheet" href="\stylesheets\jodit.min.css"> -->
+        <link rel="stylesheet" href="\stylesheets\jodit.css">
+        
+        <title>Document</title>
+        <style>
+            #employees {
+                max-height: 440px;
+            }
+
+            #bm_tree {
+                max-height: 380px;
+                min-height: 380px;
+            }
+
+            .dx-sortable-dragging {
+                opacity: 0.9
+            }
+
+            .options {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: rgba(191, 191, 191, 0.15);
+                position: relative;
+            }
+
+            .caption {
+                font-size: 18px;
+                font-weight: 500;
+            }
+
+            .option {
+                margin-top: 10px;
+                margin-right: 40px;
+                display: inline-block;
+            }
+
+            .option:last-child {
+                margin-right: 0;
+            }
+            
+            /* 입력하는 부분의 크기에 따라 왼쪽이 내려가는 현상 있음 */
+            .jodit-container {
+                width: 69.7%;
+                display: inline-block;
+                position: relative;
+                vertical-align: top;
+                /* height: 200px !important; */
+            }
+
+            .jodit_fullsize {
+                position: fixed !important;
+                width: 100%;
+            }
+
+            .pagination-wrapper {
+                width: 100%;
+                position: relative; 
+                float: left;
+                margin: 0 auto;
+                text-align: center;
+            }
+
+            ul {
+                padding: 0;
+                margin: 0;
+                margin-top: 5px;
+            }
+
+            ul li {
+                list-style-type: none;
+                display: inline-block;
+            }
+
+            /* 페이지 버튼 */
+            ul li button {
+                width: 30px;    /* 페이징 방법 3개의 모든 버튼을 일정한 크기로 깔끔하게 보기 위해서 설정함. (실제로는 width를 설정하지 않음.) */
+                border-radius: 4px;
+                border-color: transparent;
+                background-color: aliceblue;
+                color: #337ab7;
+                padding: 5px;
+                margin-left: 2px;
+                font-weight: bold;
+            }
+
+            /* 페이지 버튼에 마우스 올렸을 때 */
+            ul li button:hover{
+                
+                background-color: #265a87;
+                color: white;
+            }
+
+            /* 페이지 버튼 클릭했을 때 */
+            ul li button:active{
+                
+                background-color: #193d5b;
+                color: white;
+            }
+
+            /* p {
+                margin: 0px;
+            } */
+        </style>
+    </head>
+    <body class="dx-viewport">
+        <div class="demo-container" style="width: 30%; position: relative; display: inline-block;">
+            <div class="form">
+                <div class="dx-fieldset">    
+                    <div class="dx-field">
+                        <div class="dx-field-label">제목</div>
+                        <div class="dx-field-value">
+                            <div id="title"></div>
+                        </div>
+                    </div>    
+                    <div class="dx-field">
+                        <div class="dx-field-label">이름</div>
+                        <div class="dx-field-value">
+                            <div id="name"></div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
+
+            <div id="btnNew" class="validate"></div>
+            <div id="btnChildNew" class="validate"></div>
+            <div id="btnUpdate" class="validate"></div>
+
+            <div class="options"></div>
+            
+            <div id="tree-list-demo">
+                <div id="bm_tree" style="max-height: 380px;"></div>
+                <!-- <div id="dx-paging" style="height: 12px; margin-top: 5px; text-align: center;"></div>  -->
+                <div class="pagination-wrapper clearfix">
+                    <ul id="pages_moveByGroup" class="pagination float--right"></ul>
+                </div>
+                <div class="pagination-wrapper clearfix">
+                    <ul id="pages_moveByPage" class="pagination float--right"></ul>
+                </div>
+                <div class="pagination-wrapper clearfix">
+                    <ul id="pages_moveHomeEnd" class="pagination float--right"></ul>
+                </div>
+            </div>
+
+            <!-- <div class="options">
+                <div class="caption">Options</div>
+                <div class="option">
+                    <div id="allowDropInside"></div>
+                </div>
+                <div class="option">
+                    <div id="allowReordering"></div>
+                </div>
+                <div class="option">
+                    <div id="dragIcons"></div>
+                </div>
+            </div> -->
+        </div>
+        <div id="editor"></div>
+    </body>
+
+
+
+        
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script> -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script>
+    <!-- DevExtreme library -->
+    <script type="text/javascript" src="/javascripts/dx.all.js"></script>
+    <!-- <script type="text/javascript" src="/javascripts/jodit.min.js"></script> -->
+    <script type="text/javascript" src="/javascripts/jodit.js"></script>
+
+    <script>
+
+        const editor = new Jodit('#editor',{
+                // defaultMode: Jodit.MODE_SPLIT // html 태그 보이기
+                // readonly: true , // 글 수정 금지 게시판 클릭 시 포함되어야 함
+                // toolbarButtonSize: "small" // 툴바 크기 조정
+                askBeforePasteHTML: false, // 붙여넣기 시 어떤 방식으로 넣을 지 선택 옵션 팝업 제거
+                removeButtons: ["file", "image", "video"], // 삭제할 버튼들
+                // toolbar: false,  // 위의 툴바 지우기
+                // showCharsCounter: false,  //Char 카운트
+                // showWordsCounter: false,  //글자 카운트
+                // showXPathInStatusbar: false  //html 태그 표시
+                minHeight: 650,  // 최소 길이
+                maxHeight: 650,   // 최대 길이
+                // minWidth: 500,   // 최소 너비
+                // maxWidth: 900    // 최대 너비
+                uploader: {
+                    "insertImageAsBase64URI": true
+                },
+                enter: "BR",
+                //autofocus : true
+        });
+        // // enter key check
+        // editor.events.on('keydown', function(e) {
+        //     if (e.which === 13) {
+        //         // editor.value = editor.value + '<br/><br/>'
+        //         // editor.insertHTML('<br/>');
+        //         // e.preventDefault();
+        //         // $(this).focus();  
+        //     } else {}
+        // });
+
+        //디코딩 함수
+        function decodeHTMLEntities(text) {
+            var entities = [
+                ['amp', '&'],
+                ['apos', '\''],
+                ['#x27', '\''],
+                ['#x2F', '/'],
+                ['#39', '\''],
+                ['#47', '/'],
+                ['lt', '<'],
+                ['gt', '>'],
+                ['nbsp', ' '],
+                ['#34', '"']
+            ];
+
+            for (var i = 0, max = entities.length; i < max; ++i) 
+                text = text.replace(new RegExp('&'+entities[i][0]+';', 'g'), entities[i][1]);
+            return text;
+        }
+
+        var selectionChangedEventHandler1 = function(e) {
+            var upIds = $("#bm_tree").dxTreeList("instance").getSelectedRowKeys("all");
+            // 이거는 BM_i니까
+            var selectRow = $("#bm_tree").dxTreeList("instance").getNodeByKey(upIds);
+
+            var selectDid = selectRow.data.D_ID;    // 에러 발생(다른 곳으로 부터 마지막 페이지 조회할 때)
+
+            $.ajax({                          
+                type: 'Get',
+                url: '/api/getContents' + '?DId=' + selectDid,
+                //data:  {pBmID:sourceData.BM_LoIDs, pUpIDs:sourceData.BM_UpIDs, pDID:sourceData.D_ID},
+                //  + '?page=' + pages + '&rowCount=' + rowcounts,
+                dataType: "json"
+                ,success: function(response) {
+                    //RefreshData();
+                    if(response.data.length > 0) {
+                        editor.value = decodeHTMLEntities(response.data[0].D_Con).replace(/''/g,'\'')
+                    } else {}
+                }
+            });
+        };
+
+        
+        // 페이지 버튼 클릭 시 실행
+        function btn_paging_click(page) {
+
+            nowPage = page;
+
+            RefreshData();
+
+        }
+
+        // 투명버튼 만드는 함수
+        function transparentBtn(content) {
+            return '<li class="pagination-item"><button style="opacity: 0.0">' + content + '</button></li>';
+        }
+
+        // << < > >> 버튼 만드는 함수
+        function movePageBtn(id, clickEvent, content) {
+            return '<li class="pagination-item"><button id="' + id + '" onclick="btn_paging_click(' + clickEvent + 
+                    ');" style="cursor: pointer;">' + content +'</button></li>';
+        }
+
+        // 현재페이지 버튼 만드는 함수
+        function currentPageBtn(content) {
+            return '<li class="pagination-item"><button class="active" style="background-color:#337ab7; color:white;">' 
+                    + content + '</button></li>';
+        }
+
+        // (현재페이지를 제외한)나머지페이지 버튼 만드는 함수
+        function restPageBtn(content) {
+            return '<li class="pagination-item"><button onclick="btn_paging_click(' + content + 
+                    ');" style="cursor: pointer;">' + content + '</button></li>';
+        }
+
+
+        var nowPage = 1;        // 지금 페이지 번호
+        var dataPerPage = 11;   // 한 페이지당 보여줄 게시물 수
+
+        const pageCount = 5;                                        // 한 화면에 보여줄 페이지 수
+        const sideBtnCountUp = Math.ceil((pageCount - 1) / 2);      // 중앙을 기준으로 양쪽에 위치할 버튼 수(올림)
+        const sideBtnCountDown = Math.floor((pageCount - 1) / 2);   // 중앙을 기준으로 양쪽에 위치할 버튼 수(내림)
+
+
+        // 페이징 방법1 (네이버카페)
+        // 이전, 다음 클릭 시 페이지 그룹 단위로 이동.
+
+        function moveByGroup(totalData, currentPage) {
+
+            const totalPage = Math.ceil(totalData / dataPerPage);   // 총 페이지 수
+            const pageGroup = Math.ceil(currentPage / pageCount);   // 페이지 그룹
+
+            let last = pageGroup * pageCount;   // 화면에 보여질 마지막 페이지 번호
+            if(last > totalPage)
+                last = totalPage;
+
+            let first = last - (pageCount - 1); // 화면에 보여질 첫번째 페이지 번호
+
+            const next = last + 1;
+            const prev = first - 1;
+
+            if(totalPage < 1) 
+                first = last;
+            
+            const pages = $("#pages_moveByGroup");
+            pages.empty();
+
+            // 한 그룹일때
+            if(totalPage / pageCount == 1 || totalPage / pageCount < 1) {
+                
+                // 페이지버튼
+                for(let j = first; j <= last; j++) {
+                    if(currentPage == (j)) {
+                        pages.append(currentPageBtn(j));
+                    }
+                    else if(j > 0) {
+                        pages.append(restPageBtn(j));
+                    }
+                }
+            } 
+
+            // 두 그룹 이상일때
+            else {
+                pages.append(movePageBtn('prev1', prev, '<'));   // 이전
+
+                // 페이지 버튼
+                for(let j = first; j <= last; j++) {
+
+                    if(currentPage == (j)) {
+                        pages.append(currentPageBtn(j));
+                    }
+                    else if(j > 0) {
+                        pages.append(restPageBtn(j));
+                    } else {}
+                }  
+
+                pages.append(movePageBtn('next1', next, '>'));       // 다음
+
+                if(pageGroup == 1) {
+                    
+                    // 첫번째 그룹일때
+                    document.getElementById('prev1').style.opacity = "0.0";
+
+                }
+                else if(last == totalPage) {
+
+                    // 마지막 그룹일때
+                    document.getElementById('next1').style.opacity = "0.0";
+
+                } else {}
+            }
+        }
+
+        // 페이징 방법2
+        // 현재 페이지가 정중앙에 위치.
+        // 이전, 다음 클릭 시 한 페이지 단위로 이동.
+
+        function moveByPage(totalData, currentPage) {
+
+            const totalPage = Math.ceil(totalData / dataPerPage);   // 총 페이지 수
+
+            let last = currentPage + sideBtnCountDown;     // 화면에 보여질 마지막 페이지 번호
+            if(last > totalPage)
+                last = totalPage;
+
+            let first = currentPage - sideBtnCountUp;    // 화면에 보여질 첫번째 페이지 번호
+            if(first < 1)
+                first = 1;
+                
+            const next = currentPage + 1;   // 다음 : 현재 페이지 + 1
+            const prev = currentPage - 1;   // 이전 : 현재 페이지 - 1
+
+            if(totalPage < 1) 
+                first = last;
+
+            const pages = $("#pages_moveByPage");
+            pages.empty();
+            
+            // 페이지 버튼이 1개일때 즉, 1페이지만 있을때
+            if(first == last) {
+                pages.append(currentPageBtn(1));    // 페이지버튼
+            } 
+
+            // 페이지 버튼이 여러개 일때
+            else {
+                pages.append(movePageBtn('prev2', prev, '<'));   // 이전
+
+                var leftBlankCount = sideBtnCountUp - (currentPage - 1);    // 왼쪽 빈 공간 수
+                if(leftBlankCount < 0)
+                    leftBlankCount = 0;
+
+                for(let k = 0; k < leftBlankCount; k++) 
+                    pages.append(transparentBtn(0));    // 투명버튼(왼쪽 빈 공간)
+
+                // 페이지 버튼
+                for(let j = first; j <= last; j++) {
+
+                    if(currentPage == (j)) {
+                        pages.append(currentPageBtn(j));
+                    }
+                    else if(j > 0) {
+                        pages.append(restPageBtn(j));
+                    } else {}
+                }  
+
+                var rightBlankCount = sideBtnCountDown - (totalPage - currentPage); // 오른쪽 빈 공간 수
+                if(rightBlankCount < 0)
+                    rightBlankCount = 0;
+
+                for(let k = 0; k < rightBlankCount; k++) 
+                    pages.append(transparentBtn(0));    // 투명버튼(오른쪽 빈 공간)
+                
+                pages.append(movePageBtn('next2', next, '>'));       // 다음
+
+                if(currentPage == 1) {
+                    
+                    // 1페이지일때
+                    document.getElementById('prev2').style.opacity = "0.0";
+
+                }
+                else if(currentPage == totalPage) {
+
+                    // 마지막 페이지일때
+                    document.getElementById('next2').style.opacity = "0.0";
+
+                } else {}
+            }
+        }
+
+        // 페이징 방법3
+        // 방법2 + 처음/끝 버튼
+
+        function moveHomeEnd(totalData, currentPage) {
+
+            const totalPage = Math.ceil(totalData / dataPerPage);   // 총 페이지 수
+
+            let last = currentPage + sideBtnCountDown;     // 화면에 보여질 마지막 페이지 번호
+            if(last > totalPage)
+                last = totalPage;
+
+            let first = currentPage - sideBtnCountUp;    // 화면에 보여질 첫번째 페이지 번호
+            if(first < 1)
+                first = 1;
+
+            const next = currentPage + 1;   // 다음 : 현재 페이지 + 1
+            const prev = currentPage - 1;   // 이전 : 현재 페이지 - 1
+
+            if(totalPage < 1) 
+                first = last;
+            
+            const pages = $("#pages_moveHomeEnd");
+            pages.empty();
+
+            // 페이지 버튼이 1개일때 즉, 1페이지만 있을때
+            if(first == last) {
+                pages.append(currentPageBtn(1));    // 페이지버튼
+            } 
+
+            // 페이지 버튼이 여러개 일때
+            else {
+
+                pages.append(movePageBtn('home', 1, '<<'));     // 처음
+                pages.append(movePageBtn('prev3', prev, '<'));   // 이전
+
+                var leftBlankCount = sideBtnCountUp - (currentPage - 1);    // 왼쪽 빈 공간 수
+                if(leftBlankCount < 0)
+                    leftBlankCount = 0;
+
+                for(let k = 0; k < leftBlankCount; k++) 
+                    pages.append(transparentBtn(0));    // 투명버튼(왼쪽 빈 공간)
+
+                // 페이지 버튼
+                for(let j = first; j <= last; j++) {
+
+                    if(currentPage == (j)) {
+                        pages.append(currentPageBtn(j));
+                    }
+                    else if(j > 0) {
+                        pages.append(restPageBtn(j));
+                    } else {}
+                }  
+
+                var rightBlankCount = sideBtnCountDown - (totalPage - currentPage); // 오른쪽 빈 공간 수
+                if(rightBlankCount < 0)
+                    rightBlankCount = 0;
+
+                for(let k = 0; k < rightBlankCount; k++) 
+                    pages.append(transparentBtn(0));    // 투명버튼(오른쪽 빈 공간)
+                
+                pages.append(movePageBtn('next3', next, '>'));       // 다음
+                pages.append(movePageBtn('end', totalPage, '>>'));  // 맨끝
+
+                if(currentPage == 1) {
+                    
+                    // 1페이지일때
+                    document.getElementById('home').style.opacity = "0.0";
+
+                    document.getElementById('prev3').style.opacity = "0.0";
+
+                }
+                else if(currentPage == totalPage) {
+
+                    // 마지막 페이지일때
+                    document.getElementById('next3').style.opacity = "0.0";
+                    
+                    document.getElementById('end').style.opacity = "0.0";
+
+                } else {}
+            }
+        }
+
+        function BindData(){
+                                
+            $.ajax({
+                type: 'POST',
+                url: '/api/callData',
+                data: {pPage: nowPage, pPageCount: dataPerPage},
+                dataType: "json"
+                ,success: function(response) {
+
+                    // 전체 게시글 수 가져오기
+                    $.ajax({
+                        type: 'GET',
+                        url: '/api/getRowCount',
+                        dataType: "json"
+                        ,success: function(res) {
+
+                            var bmCnt = JSON.stringify(res.data[0].bmCnt).replace(/"/g, '');
+                            //alert(bmCnt);
+
+                            moveByGroup(bmCnt, nowPage);
+                            moveByPage(bmCnt, nowPage);
+                            moveHomeEnd(bmCnt, nowPage);
+
+                        }
+                    });
+
+                    // respnse.data
+                    // Dev 의 페이징은 다음과 같이 지원됨
+                    // Page Size를 10으로 지정하면 10 이상이 되어야 페이징 활성화 됨, 이전에는 활성화 되지 않음
+                    var treeList = $("#bm_tree").dxTreeList({
+                        scrolling: {
+                            mode: "standard"
+                        },
+                        // paging: {
+                        //     enabled: true,
+                        //     pageSize: 10
+                        // },
+                        // pager: {
+                        //     showPageSizeSelector: true,
+                        //     allowedPageSizes: [10, 20, 30],
+                        //     showInfo: true
+                        // },
+                        dataSource: response.data,
+                        itemsExpr: "children",
+                        dataStructure: "tree",
+                        rootValue: 0,
+                        keyExpr: "BMTR_i",
+                        // parentIdExpr: "BM_UpIDs",
+                        columnMinWidth: 50,
+                        columnAutoWidth: true,
+                        allowColumnResizing: true,
+                        columnResizingMode: "nextColumn",
+                        columns: [
+                                    
+                                    {
+                                        dataField: "D_Title",
+                                        caption: "제목",
+                                        selectedFilterOperation: "contains"
+                                    }, 
+                                    {
+                                        dataField: "D_cNm",
+                                        caption: "작성자",
+                                        selectedFilterOperation: "contains"
+                                    },
+                                    "BM_i", 
+                                    {
+                                        dataField: "BM_UpIDs",
+                                        caption: "BM_UpIDs",
+                                        selectedFilterOperation: "contains"
+                                    },
+                                    "BMTR_Order",
+                                    {
+                                        dataField: "BM_LoIDs",
+                                        caption: "BM_LoIDs",
+                                        selectedFilterOperation: "contains"
+                                    }, 
+                                    "BMTR_lv",
+                                    "BMTR_Grp_ID",
+                                    "D_ID",
+                                    "BMTR_Seq"
+                                    // "orgUpIDs",
+                                    // "orgLoIDs"
+                                ],
+                        expandedRowKeys: [1],
+                        filterRow: {
+                            visible: true,
+                            applyFilter: "auto"
+                        },
+                        selection: {
+                            mode: "single" // or "multiple" | "none"
+                        },
+                        sorting: {
+                            mode: "none" // or "multiple" | "none"
+                        },
+                        autoExpandAll:true,
+                        showRowLines: true,
+                        showBorders: true,
+                        rowDragging: {
+                            allowDropInsideItem: true,
+                            allowReordering: true,
+                            onDragChange: function(e) {
+                                // 이동할 내역을 붙잡고 이동시 계속 발생
+                                console.log('onDragChange');
+
+                                var visibleRows = treeList.getVisibleRows(),
+                                    sourceNode = treeList.getNodeByKey(e.itemData.BMTR_i),
+                                    targetNode = visibleRows[e.toIndex].node;
+
+                                while (targetNode && targetNode.data) {
+                                    if (targetNode.data.BMTR_i == sourceNode.data.BMTR_i) {
+                                        e.cancel = true;
+                                        
+                                        console.log('Cancel');
+                                        break;
+                                    } else {}
+
+                                    targetNode = targetNode.parent;
+                                }
+                            },
+                            onReorder: function(e) {
+                                // 이동이 끝난경우 발생
+                                console.log('onReorder');
+
+                                // sourceData 는 이동한 본인
+                                // targetData 는 이동 되려는 곳, 즉 부모
+
+                                var visibleRows = e.component.getVisibleRows(),
+                                    sourceData = e.itemData,
+                                    targetData = visibleRows[e.toIndex].data;
+                                
+                                console.log('Target Data : ' + targetData.BMTR_lv + " : " + targetData.BMTR_Grp_ID);
+
+                                var isShare = false;
+                                    //console.log(" org id : " + sourceData.orgLoIDs);
+                                if (e.dropInsideItem) {
+                                    // 외부에서 내부로 들어가는 경우
+                                    console.log('inside item');
+
+                                    e.itemData.BM_UpIDs = targetData.BM_LoIDs;
+                                    if(confirm('해당글을 공유하시겠습니까?r\n공유하지 않으시면 글이 이동됩니다.')) {
+                                        isShare = true;
+                                    }
+
+                                } else {
+                                    // 내부로 들어가는 경우 제외 전부
+                                    console.log('not inside item');
+
+                                    var sourceIndex = response.data.indexOf(sourceData),
+                                        targetIndex = response.data.indexOf(targetData);
+
+                                    if (sourceData.BM_UpIDs !== targetData.BM_UpIDs) {
+                                        sourceData.BM_UpIDs = targetData.BM_UpIDs;
+
+
+
+                                        if (e.toIndex > e.fromIndex) {
+                                            targetIndex++;
+                                        } else {}
+                                    } else {}
+
+
+                                    response.data.splice(sourceIndex, 1);
+                                    response.data.splice(targetIndex, 0, sourceData);
+                                }
+
+                                // 만약 같은 글이 있는 경우
+                                // var checkArray = response.data.filter(function (n) {
+                                //     return n.BM_UpIDs == sourceData.BM_UpIDs;
+                                // });
+
+                                // var isDuple = false;
+
+                                // for(i=0; i<checkArray.length; i++) {
+                                //     if(checkArray[i].D_ID == sourceData.D_ID && checkArray[i].BM_i != sourceData.BM_i) {
+                                //         // 자기 자신 제외하고 검색
+                                //         isDuple = true;
+                                //         break;
+                                //     } else {}
+                                // }
+
+                                // if(isDuple) {
+                                //     alert("같은 내용의 게시글이 존재합니다. 이동, 공유할 수 없습니다.");
+                                //     RefreshData();
+                                //     return;
+                                // } else {}
+
+                                // BM_UpIDs 가 해당 내용인걸 파악해본다.
+                                // sourceData.c_BM_UpIDs 가 같은 아이들을 찾는다.
+                                
+                                // 우선 부모를 찾고 그다음에 자식들을 찾아야 하나?
+                                // 그냥 sourceData 가지고 진행해야 하나?
+
+                                // 내용은 좀 더 찾아볼 것
+                                // 위치가 바뀐 내용을 가져옴
+
+                                if(!isShare) {
+                                    // var updateArray = response.data.filter(function (n) {
+                                    //     return n.BM_UpIDs == sourceData.BM_UpIDs;
+                                    // });
+
+                                    // var orderArray = response.data.filter(function (n) {
+                                    //     return n.BM_UpIDs == sourceData.BM_UpIDs;
+                                    // });
+
+                                    // function customSort(a, b) 
+                                    // { 
+                                    //     if(a.BM_LoIDs == b.BM_LoIDs)
+                                    //     { 
+                                    //         return 0;
+                                    //     } else{}
+
+                                    //     return a.BM_LoIDs < b.BM_LoIDs ? 1 : -1; 
+                                    // } 
+                                    
+                                    // orderArray = orderArray.sort(customSort);
+
+                                    // // 값 복사 방식이 Value 가 아닌 Reference로 보여짐
+                                    // // order 한 내역을 다시 세팅한다.
+
+                                    // var orderComArray = {};
+
+                                    // for(i=0; i<orderArray.length; i++) {
+                                    //     orderComArray[i] = orderArray[i].BM_LoIDs;
+                                    // }
+                                    
+                                    // //var updateData = "[";
+
+                                    // for(i=0; i<updateArray.length; i++) {
+
+                                    //     // console.log("i Data : " + i);
+                                    //     // console.log("Begin Data : " + updateArray[i].BM_LoIDs);
+                                    //     // console.log("Update Data : " + orderComArray[i]);
+                                        
+                                    //     // 값을 바꾸면 orderArray가 이상하게 바뀜
+                                    //     // 아마 근본 값을 바꾸어서 이렇게 되는것으로 보여짐
+                                    //     updateArray[i].BM_LoIDs = orderComArray[i];
+
+                                    //     //updateData += "{BM_IDs:" + updateArray[i].c_BM_IDs + ", BM_UpIDs:" +  updateArray[i].c_BM_UpIDs + ", BM_LoIDs:" + orderComArray[i] + "},";
+
+                                    //     // console.log("Complete Data : " + updateArray[i].BM_LoIDs);
+                                    // }
+
+                                    //
+                                    // updateData = updateData.slice(0,-1);
+                                    // updateData += "]";
+
+                                    // 기존 Refresh
+                                    // e.component.refresh();
+                                    
+                                    // 현재 BM Move 시 문제점
+                                    // 무조건 위로 간다.
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/api/updateData',
+                                        // data: {data: JSON.stringify(updateArray)},
+                                        data: {pBmID:sourceData.BM_i, pUpIDs:sourceData.BM_UpIDs},
+                                        //  + '?page=' + pages + '&rowCount=' + rowcounts,
+                                        dataType: "json"
+                                        ,success: function(respnse) {
+                                            RefreshData();
+                                        }
+                                    });
+                                } else {
+                                    // 공유는 어떤방식으로 하는가?
+                                    // 현재 sourceData를 BM에 추가해준다.
+                                    // 그러면 끝?
+                                    // 끝난후 순서 이동은 알아서 하는거로?
+
+                                    // 일단 해보자
+                                    // 현재 공유글 이동이 문제가 됨
+                                    // 공유글 만드는거 자체는 문제가 없음
+
+                                    // 근데 그 글을 다시 0레벨로 만든다던지 하면 문제가 발생 함
+                                    // 갱신 DELETE 할때 BM_I도 확인해서 삭제하게 함
+
+                                    // 리플달때 문제가 됨
+                                    // 리플 달리는 로직 좀 확인해볼 것
+                                    // 뭐냐면 공유된 내용을 전부 다 Refresh 해줘야 함
+                                    // 전체 Refresh 관련 업데이트를 확인해볼 것
+                                    // 전체 갱신을 해야하나...?
+
+                                    // 공유 쪽에서 다음과 같은 부분을 체크하자.
+                                    // 1. 자신의 상단을 알고 있으니 상단정보를 가지고 상단 정보의 모든 BM을 확인한다. (D_ID)
+                                    // 2. 모든 BM을 확인하고 다 갱신해준다..... (해당 부분이 여러울 듯 ?)
+                                    // BM확인에서는 다음과같이 한다.
+                                    // 상단 값을 가지고 있는 모든 BM 확인
+
+                                    // 해당 BM을 Up로 해당 데이터 전부 입력
+                                    // 입력하는 내용의 하단 내용을 전부 다시 입력 -> 프로그램에서 안하면 커서 사용을 해야할 것으로 보여 짐
+                                    // 프로그램에서 되도록 안하려고 하는 이유 -> 트랜잭션 처리로 인하여
+                                    // 일단 해보자
+                                    // 해당 내용을 해보면 리플달기, 이동 시에도 사용 가능할것으로 보여짐
+                                    // 공유와 이동은 같은 개념이나, 리플은 다른개념이 된다.
+
+                                    console.log("share sourceData BM i" + sourceData.BM_LoIDs);
+                                    console.log("share sourceData BM UpIDs" + sourceData.BM_UpIDs);
+                                    console.log("share sourceData BM Grp ID" + sourceData.BMTR_Grp_ID);
+                                    console.log("share TargetData D ID" + sourceData.D_ID);
+                                    
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/api/shareData',
+                                        data:  {pBmID:sourceData.BM_LoIDs, pUpIDs:sourceData.BM_UpIDs, pDID:sourceData.D_ID},
+                                        //  + '?page=' + pages + '&rowCount=' + rowcounts,
+                                        dataType: "json"
+                                        ,success: function(respnse) {
+                                            RefreshData();
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }).dxTreeList("instance")
+                    .on("selectionChanged", selectionChangedEventHandler1);
+                    
+                    // $("#bm_tree").dxTreeList("instance").expandAll();
+                }
+            });
+        }
+
+        // 20.11.06 us.Kim
+        // 메소드 하나로 묶는법 찾아볼 것
+        // 이미 만들어져 있는 상태에서는 auto Expand 가 안되서 삭제하고 다시 만들어 줘야 하는데
+        // dxTreeList 가 있는지 없는지를 확인해야 함 
+        // 이렇게 구현한건 코드 중복을 줄이기 위해서
+        // 다음과 같은 경우 Ajax 실패 시 데이터가 아예 안보이게 됨 ( 이전것도 사라짐 )
+        function RefreshData(){
+
+            $("#bm_tree").dxTreeList("dispose");
+
+            BindData();
+        }
+
+        function AddBoard(upIDs, title, name, groupId, contents) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/addData',
+                data: {pTitle:title,pName:name,pUpIDs:upIDs, pGrpID:groupId, pContents:contents},
+                //  + '?page=' + pages + '&rowCount=' + rowcounts,
+                dataType: "json"
+                ,success: function(respnse) {
+                    RefreshData();
+                }
+            });
+        }
+
+        function UpdateBoard(DId, contents) {
+            $.ajax({
+                type: 'POST',
+                url: '/api/updateContents',
+                data: {pDId:DId,pContents:contents},
+                //  + '?page=' + pages + '&rowCount=' + rowcounts,
+                dataType: "json"
+                ,success: function(respnse) {
+                    //RefreshData();
+                }
+            });
+        }
+
+        $(function() {
+            $("#title").dxTextBox({
+                disabled: false
+            });
+            
+            $("#name").dxTextBox({
+                disabled: false
+            });
+            
+            $("#btnNew").dxButton({
+                text: "새글 만들기",
+                type: "default",
+                onClick: function (e) {
+
+                    //alert($("#bm_tree").dxTreeList.selectedRowKeys);
+
+                    // all 로 해도 Single이니까 상관없다.
+                    // var upIds = $("#bm_tree").dxTreeList("instance").getSelectedRowKeys("all");
+                    
+                    // if(upIds == "") {
+                    //     upIds = 0;
+                    // } else {}
+
+                    AddBoard(0, $('#title').dxTextBox('instance').option('value'), $('#name').dxTextBox('instance').option('value'), 0, editor.value.replace(/'/g,'\'\''));
+
+                    //alert(upIds);
+
+                    // var tree = $("#bm_tree").dxTreeList("instance");  
+                }
+            });
+
+            $("#btnChildNew").dxButton({
+                text: "리플 만들기",
+                type: "default",
+                onClick: function (e) {
+
+                    //alert($("#bm_tree").dxTreeList.selectedRowKeys);
+
+                    // all 로 해도 Single이니까 상관없다.
+                    var upIds = $("#bm_tree").dxTreeList("instance").getSelectedRowKeys("all");
+                    // 이거는 BM_i니까
+                    var selectRow = $("#bm_tree").dxTreeList("instance").getNodeByKey(upIds);
+                    
+
+                    if(upIds == "") {
+                        alert("부모가 될 게시글을 선택해주세요.");
+                        return;
+                    } else {}
+
+                    AddBoard(
+                        selectRow.data.BM_LoIDs, 
+                        $('#title').dxTextBox('instance').option('value'), 
+                        $('#name').dxTextBox('instance').option('value'), 
+                        selectRow.data.BMTR_Grp_ID,
+                        editor.value.replace(/'/g,'\'\'')
+                    );
+
+                    //alert(upIds);
+
+                    // var tree = $("#bm_tree").dxTreeList("instance");  
+                }
+            });
+
+            $("#btnUpdate").dxButton({
+                text: "글 수정",
+                type: "default",
+                onClick: function (e) {
+                    var upIds = $("#bm_tree").dxTreeList("instance").getSelectedRowKeys("all");
+                    // 이거는 BM_i니까
+                    var selectRow = $("#bm_tree").dxTreeList("instance").getNodeByKey(upIds);
+                    
+                    var selectDid = selectRow.data.D_ID;
+
+                    UpdateBoard(selectDid, editor.value.replace(/'/g,'\'\''));
+                }
+            });
+
+
+            // onLoad에서 사용하는것과 같은 동작
+            BindData();
+
+            // $("#allowDropInside").dxCheckBox({
+            //     text: "Allow Drop Inside Item",
+            //     value: true,
+            //     onValueChanged: function(e) {
+            //         treeList.option("rowDragging.allowDropInsideItem", e.value);
+            //     }
+            // });
+
+            // $("#allowReordering").dxCheckBox({
+            //     text: "Allow Reordering",
+            //     value: true,
+            //     onValueChanged: function(e) {
+            //         treeList.option("rowDragging.allowReordering", e.value);
+            //     }
+            // });
+
+            // $("#dragIcons").dxCheckBox({
+            //     text: "Show Drag Icons",
+            //     value: true,
+            //     onValueChanged: function(e) {
+            //         treeList.option("rowDragging.showDragIcons", e.value);
+            //     }
+            // });
+
+
+
+        });
+    </script>
+</html>

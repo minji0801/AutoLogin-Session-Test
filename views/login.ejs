@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<script>
+    $(function() {
+        $.ajax({
+                type: 'GET',
+                url: '/users/session',
+                success: function (response) {
+                    
+                }
+            });
+    })
+</script>
+<body>
+    로그인
+    <form action="/users/emaillogin" method="post">
+        <div>
+            <input type="text" name="email" placeholder="이메일"/>
+        </div>
+        <div class="m-t-10">
+            <input type="password" name="pw" placeholder="비밀번호"/>
+        </div>
+        <div class="m-t-10">
+            <input class="btn login" type="submit" value="로그인" />
+        </div>
+    </form>
+</body>
+</html>

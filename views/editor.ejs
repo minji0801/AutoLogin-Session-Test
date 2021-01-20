@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.css">
+    
+</head>
+<body>
+    <div>타이틀 들어갈 곳</div>
+    <div id="editor"></div>
+    <button type="button" onclick="submitHtml()">내용 저장하기</button>
+    <button type="button" onclick="updateHtml()">내용 수정하기</button>
+</body>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.js"></script>
+<script>
+
+    
+
+
+    //api에서 받은 C_i, C_Text 값
+    let board_id = `<%= data.C_i %>`
+    let board_contents = `<%= data.C_Text %>`
+    //에디터 생성
+    const editor = new Jodit('#editor',{
+        // defaultMode: Jodit.MODE_SPLIT // html 태그 보이기
+        // readonly: true , // 글 수정 금지 게시판 클릭 시 포함되어야 함
+        // toolbarButtonSize: "small" // 툴바 크기 조정
+        // askBeforePasteHTML: false, // 붙여넣기 시 어떤 방식으로 넣을 지 선택 옵션 팝업 제거
+        // removeButtons: ["file", "outdent", "selectall", "print"], // 삭제할 버튼들
+        // toolbar: false,  // 위의 툴바 지우기
+        // showCharsCounter: false,  //Char 카운트
+        // showWordsCounter: false,  //글자 카운트
+        // showXPathInStatusbar: false  //html 태그 표시
+        // minHeight: 300,  // 최소 길이
+        // maxHeight: 700   // 최대 길이
+        // minWidth: 500,   // 최소 너비
+        // maxWidth: 900    // 최대 너비
+    });
+
+    //디코딩 함수
+    function decodeHTMLEntities(text) {
+        var entities = [
+            ['amp', '&'],
+            ['apos', '\''],
+            ['#x27', '\''],
+            ['#x2F', '/'],
+            ['#39', '\''],
+            ['#47', '/'],
+            ['lt', '<'],
+            ['gt', '>'],
+            ['nbsp', ' '],
+            ['#34', '"']
+        ];
+
+        for (var i = 0, max = entities.length; i < max; ++i) 
+            text = text.replace(new RegExp('&'+entities[i][0]+';', 'g'), entities[i][1]);
+        return text;
+    }
+
+    //디코딩 후 콘텐츠에 넣음 작은 따옴표 두개는 다시 한개로 변경
+    editor.value = decodeHTMLEntities(board_contents).replace(/''/g,'\'')
+
+    // $(window).on("beforeunload", function() {
+
+    //     return "작성중인 글이 존재합니다. 페이지를 나가시겠습니까?";
+    // });
+
+    function updateHtml(){
+        //업데이트할 게시물 PK == board_id
+        //ajax PUT 메소드 사용
+        //현재 작성된 에디터의 내용
+        let html_tag = editor.value;
+        // 작은 따옴표는 '' 두개 붙여서 보냄
+        let contents = html_tag.replace(/'/g,'\'\'');
+
+    }
+
+    function submitHtml(){
+        //현재 작성된 에디터의 내용
+        let html_tag = editor.value;
+        // 작은 따옴표는 '' 두개 붙여서 보냄
+        let contents = html_tag.replace(/'/g,'\'\'');
+      
+        $.ajax({
+            url : '/api/contents',
+            method : 'post',
+            dataType : 'json',
+            data : {contents : contents},
+            success : function(res){
+                console.log('ajax res :', res);
+                //저장 후 다시 게시판으로 돌아감 or 작성된 페이지로 이동
+                location.href = '/drag'
+            }
+        })
+    }
+
+</script>
+</html>
